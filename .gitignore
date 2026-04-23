@@ -1,7 +1,10 @@
 .idea
 .vscode
-projects/inputs/
+
+projects/inputs/*
 !projects/inputs/.gitkeep
 !projects/inputs/sample-project/
-projects/outputs/
+!projects/inputs/sample-project/**
+
+projects/outputs/*
 !projects/outputs/.gitkeep
