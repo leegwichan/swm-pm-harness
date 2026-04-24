@@ -2,17 +2,46 @@
 
 `analyze-meeting` skill이 최종 리포트를 작성할 때의 파일 포맷, 상단 메타데이터, 섹션 구조, 그리고 개인정보 마스킹 규칙.
 
-## 저장 경로
+## 저장 구조 (한 실행 = 한 디렉터리, 여러 파일)
+
+각 에이전트의 원문을 별도 파일로 저장하고, 이를 묶는 종합 리포트를 별도 파일로 저장한다. 한 번의 실행 결과는 하나의 디렉터리로 그룹화된다.
 
 ```
-projects/outputs/<project>/{YYYY-MM-DD-HHmm}-{mode}-report.md
+projects/outputs/<project>/{YYYY-MM-DD-HHmm}-{mode}/
+├── tech-lead-mentor.md          # 에이전트 원문 (참여한 에이전트만)
+├── target-user-persona.md
+├── swm-reviewer.md
+├── peer-competitor.md
+└── synthesis.md                 # 종합 리포트 (반·합·점검·질문)
 ```
 
 - `<project>`: 입력 디렉터리 이름과 동일.
 - `{YYYY-MM-DD-HHmm}`: 현재 로컬 시간, 분 단위.
 - `{mode}`: `full` / `planning` / `tech` / `portfolio`.
+- 참여하지 않은 에이전트의 파일은 **생성하지 않는다**(빈 파일 금지).
+- 디렉터리명 충돌(동일 분 타임스탬프)은 뒤에 `-2`, `-3` 접미사로 회피.
 
-## 리포트 전체 구조
+## 에이전트 개별 파일 포맷 (`{agent-name}.md`)
+
+에이전트 응답 원문을 **축약 없이** 그대로 저장한다. 마스킹만 적용한다.
+
+```markdown
+# {프로젝트명} — {agent-name} 단독 분석 ({YYYY-MM-DD HH:mm})
+
+- 프로젝트: {project}
+- 입력 파일: projects/inputs/{project}/{...}
+- 에이전트: {agent-name}
+- 분석 모드: {mode}
+- 최우선 목표: 2026년 백엔드/프론트 신입 개발자 서비스/대기업 취업 성공
+
+---
+
+(에이전트 응답 원문 전체. 가독성을 위한 편집 금지. 마스킹만 예외.)
+```
+
+## 종합 리포트 포맷 (`synthesis.md`)
+
+에이전트 원문은 **링크로 대체**한다. 원문을 synthesis.md에 중복 복사하지 않는다.
 
 ```markdown
 # {프로젝트명} — 종합 리포트 ({YYYY-MM-DD HH:mm})
@@ -22,25 +51,23 @@ projects/outputs/<project>/{YYYY-MM-DD-HHmm}-{mode}-report.md
 - 분석 모드: {mode}
 - 참여 에이전트: {목록}
 - 최우선 목표: 2026년 백엔드/프론트 신입 개발자 서비스/대기업 취업 성공
+- 실패한 에이전트: {있다면 목록 + 사유, 없으면 줄 생략}
 
 ---
 
 ## 한 줄 요약
 (취업 임팩트 관점에서 현 기획의 현주소 한 문장)
 
-## 정(正) — 각 에이전트 원문 (축약 없음)
+## 정(正) — 각 에이전트 원문
 
-### tech-lead-mentor
-(원문 전체 그대로, 마스킹만 적용)
+각 에이전트의 단독 분석 원문은 동일 디렉터리 내 별도 파일에 보관된다. 종합 판단의 근거를 확인하려면 원문을 함께 읽을 것.
 
-### target-user-persona
-(원문 전체 그대로, 마스킹만 적용)
+- [tech-lead-mentor](./tech-lead-mentor.md)
+- [target-user-persona](./target-user-persona.md)
+- [swm-reviewer](./swm-reviewer.md)
+- [peer-competitor](./peer-competitor.md)
 
-### swm-reviewer
-(원문 전체 그대로, 마스킹만 적용)
-
-### peer-competitor
-(원문 전체 그대로, 마스킹만 적용)
+(참여하지 않은 에이전트의 줄은 생략)
 
 ## 반(反) — 충돌 지점
 (synthesis-framework의 반(反) 규약에 따라)
@@ -57,8 +84,6 @@ projects/outputs/<project>/{YYYY-MM-DD-HHmm}-{mode}-report.md
 3. ...
 ```
 
-모드가 `full`이 아닐 때는 참여하지 않은 에이전트의 `### {agent-name}` 섹션을 생략한다(빈 섹션을 남기지 않는다).
-
 ## 한 줄 요약 작성 규칙
 
 - **취업 임팩트 관점**에서 현 기획의 현주소를 한 문장으로.
@@ -68,7 +93,7 @@ projects/outputs/<project>/{YYYY-MM-DD-HHmm}-{mode}-report.md
 
 ## 개인정보 마스킹 규칙
 
-리포트 저장 단계에서만 적용한다. 서브에이전트 호출 시(execution.md 단계 3)에는 원문 그대로 전달한다.
+리포트 저장 단계에서만 적용한다. 서브에이전트 호출 시(execution.md 단계 3)에는 원문 그대로 전달한다. 에이전트 개별 파일과 종합 파일 **모두**에 동일하게 적용한다.
 
 ### 적용 대상과 형태
 
@@ -92,9 +117,10 @@ projects/outputs/<project>/{YYYY-MM-DD-HHmm}-{mode}-report.md
 
 ## 저장 후 사용자 출력
 
-리포트 저장이 끝나면 현재 대화 응답에서 다음 두 가지만 짧게 전달한다.
+리포트 저장이 끝나면 현재 대화 응답에서 다음만 짧게 전달한다.
 
-1. 저장 경로(클릭·복사 가능한 형태).
-2. 리포트의 "한 줄 요약" 본문.
+1. 저장 디렉터리 경로(클릭·복사 가능한 형태).
+2. 생성된 파일 목록(에이전트 개별 파일 + `synthesis.md`).
+3. `synthesis.md`의 "한 줄 요약" 본문.
 
-전체 리포트를 대화창에 그대로 복사하지 않는다(사용자가 파일을 직접 열어 읽는다).
+전체 리포트 내용을 대화창에 그대로 복사하지 않는다(사용자가 파일을 직접 열어 읽는다).
