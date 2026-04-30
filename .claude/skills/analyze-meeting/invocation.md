@@ -13,15 +13,15 @@
 - `<project>` (필수): `projects/inputs/` 아래 디렉터리 이름. 예: `stitch`, `sample-project`.
   - 인자 자체를 생략하면 `Glob`으로 `projects/inputs/*/`를 조회해 디렉터리 목록을 보여주고 "어떤 프로젝트를 분석할지" 되묻는다. 임의로 선택하지 않는다.
 - `mode` (선택, 기본값 `full`): 아래 모드 표 참조.
-- `input-path` (선택): 절대 경로 또는 레포 루트 기준 상대 경로. 생략 시 `projects/inputs/<project>/` 내 가장 최근 수정된 `.md` 파일을 자동 선택.
+- `input-path` (선택): 절대 경로 또는 레포 루트 기준 상대 경로. **단일 파일을 명시적으로 지정**하고 싶을 때만 사용한다. 생략 시 `projects/inputs/<project>/` 내 **모든 파일**(누적 자료 전체, `.md` 우선이며 `.html`·`.txt`도 포함)을 시간순(파일명/수정시간 오름차순)으로 묶어 RAW DATA로 사용한다.
 
 ### 예시
 
 ```
-/analyze-meeting sample-project                                         # full + 최근 파일
+/analyze-meeting sample-project                                         # full + inputs/sample-project/ 전체 파일
 /analyze-meeting sample-project full                                    # 동일
-/analyze-meeting sample-project planning                                # planning 모드
-/analyze-meeting stitch tech projects/inputs/stitch/stack-v2.md         # 특정 파일 지정
+/analyze-meeting sample-project planning                                # planning 모드 (전체 파일)
+/analyze-meeting stitch tech projects/inputs/stitch/stack-v2.md         # 특정 단일 파일 지정
 /analyze-meeting                                                        # 프로젝트 목록 안내 후 중단
 ```
 
@@ -57,4 +57,4 @@
    ```
 3. `mode`가 위 표에 없는 값이다 → 지원 모드 목록을 보여주고 중단.
 4. `input-path`가 주어졌는데 파일이 없거나 읽을 수 없다 → 경로 확인 안내 후 중단.
-5. `input-path` 생략 상태에서 `projects/inputs/<project>/` 내 `.md` 파일이 하나도 없다 → 파일 배치 안내 후 중단.
+5. `input-path` 생략 상태에서 `projects/inputs/<project>/` 내 분석 가능한 파일(`.md`/`.html`/`.txt`)이 하나도 없다 → 파일 배치 안내 후 중단.

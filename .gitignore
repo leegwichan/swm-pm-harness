@@ -8,3 +8,4 @@ projects/inputs/*
 
 projects/outputs/*
 !projects/outputs/.gitkeep
+!projects/outputs/debate-zip

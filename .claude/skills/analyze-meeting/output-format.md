@@ -29,7 +29,11 @@ projects/outputs/<project>/{YYYY-MM-DD-HHmm}-{mode}/
 # {프로젝트명} — {agent-name} 단독 분석 ({YYYY-MM-DD HH:mm})
 
 - 프로젝트: {project}
-- 입력 파일: projects/inputs/{project}/{...}
+- 입력 파일: 다음 목록의 파일들을 시간순으로 합쳐 분석
+  - projects/inputs/{project}/{file-1}
+  - projects/inputs/{project}/{file-2}
+  - ...
+  (단일 파일을 명시적으로 지정한 경우 그 한 줄만)
 - 에이전트: {agent-name}
 - 분석 모드: {mode}
 - 최우선 목표: 2026년 백엔드/프론트 신입 개발자 서비스/대기업 취업 성공
@@ -47,7 +51,11 @@ projects/outputs/<project>/{YYYY-MM-DD-HHmm}-{mode}/
 # {프로젝트명} — 종합 리포트 ({YYYY-MM-DD HH:mm})
 
 - 프로젝트: {project}
-- 입력 파일: projects/inputs/{project}/{...}
+- 입력 파일: 시간순 합본
+  - projects/inputs/{project}/{file-1}
+  - projects/inputs/{project}/{file-2}
+  - ...
+  (단일 파일을 명시적으로 지정한 경우 그 한 줄만)
 - 분석 모드: {mode}
 - 참여 에이전트: {목록}
 - 최우선 목표: 2026년 백엔드/프론트 신입 개발자 서비스/대기업 취업 성공
