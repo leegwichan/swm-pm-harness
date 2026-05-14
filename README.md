@@ -1,12 +1,23 @@
 # SWM PM Harness
 
-SW 마에스트로 연수 프로젝트의 기획·기술 의사결정을 4명의 전문가 페르소나 관점에서 분석하고, **"2026년 신입 개발자 취업 성공"** 기준으로 종합해주는 Claude Code 하네스.
+SW 마에스트로 연수 프로젝트의 **기획·기술 의사결정 분석** + **기획 심의 통과를 위한 기획서 초안 작성**을 돕는 Claude Code 하네스. 모든 판정의 기준은 **"2026년 신입 개발자 취업 성공"**.
 
-팀 회의 RAW DATA(회의록, 기획서 초안, 기술 스펙 등)를 입력으로 주면:
+팀 회의 RAW DATA(회의록, 기획서 초안, 기술 스펙 등)를 입력으로 주면 두 가지 산출물을 만들 수 있다.
 
-1. 4명의 서브에이전트가 **각자 독립된 컨텍스트**에서 병렬 분석
-2. 메인 Claude가 **정(正)·반(反)·합(合) + 팀원별 취업 레버리지 점검** 구조로 종합
-3. 결과를 `projects/outputs/<project>/{타임스탬프}-{mode}-report.md`로 저장
+### 1. 4페르소나 분석 리포트 — `/analyze-meeting`
+
+- 4명의 서브에이전트가 **각자 독립된 컨텍스트**에서 병렬 분석
+- 메인 Claude가 **정(正)·반(反)·합(合) + 팀원별 취업 레버리지 점검** 구조로 종합
+- `projects/outputs/<project>/{YYYY-MM-DD-HHmm}-{mode}-report.md`로 저장
+
+### 2. AI·SW마에스트로 17기 기획서 초안 — `/draft-proposal`
+
+- `projects/forms/` 의 17기 양식·체크리스트(외부 후기 5단계 반영) 기반으로 초안 작성
+- 본문 `02-main.md` (10p) + 요약 `01-summary.md` (1p)
+- **11개 섹션 묶음 인터리브 질의응답**: 한 섹션마다 RAW 기반 초안 → 1~3개 질문 → 답변 반영 → 부분 저장
+- "팀 논의 안 됨" 류 답변은 본문 직후 `<!-- ⚠️ 추가 논의 필요 -->` 블록으로 인라인 누적, 멈추지 않고 다음 섹션 진행
+- 시스템 구성도·AI 데이터 플로우 등 시각 자료 권장 섹션은 **Mermaid 초안 + placeholder 제작 가이드**가 디폴트로 함께 들어감
+- `projects/outputs/<project>/{YYYY-MM-DD-HHmm}-proposal/` 에 저장. `--resume <ts>` 로 중간 재개 가능
 
 **최우선 목표 (고정):**
 
@@ -71,7 +82,7 @@ mkdir -p projects/inputs/<project-name> projects/outputs/<project-name>
 
 그 다음 `projects/inputs/<project-name>/`에 회의록·기획서·기술 스펙 `.md` 파일을 넣으면 된다.
 
-## 사용법
+## 사용법 — `/analyze-meeting` (4페르소나 분석)
 
 ### 호출 형태
 
@@ -114,6 +125,55 @@ mkdir -p projects/inputs/<project-name> projects/outputs/<project-name>
 - **팀원별 취업 레버리지 점검**: 각자 자기 지분으로 면접에서 말할 수 있는가
 - **다음 회의 전까지 팀이 답해야 할 질문**
 
+## 사용법 — `/draft-proposal` (17기 기획서 초안)
+
+### 호출 형태
+
+```
+/draft-proposal <project> [--resume <ts>]
+```
+
+- `<project>` (필수): `projects/inputs/` 아래 디렉터리. 예: `debate-zip`.
+- `--resume <ts>` (선택): 이전 실행의 타임스탬프(`YYYY-MM-DD-HHmm`)로 이어서 진행.
+
+### 진행 방식
+
+1. `projects/inputs/<project>/` 의 RAW(`.md`/`.html`/`.txt`/이미지 메타)를 시간순(파일명 오름차순)으로 합쳐서 읽는다.
+2. `projects/forms/02-main.md` 양식 골격을 기반으로 **11개 섹션 묶음을 인터리브로** 진행:
+   - 각 섹션마다 (a) RAW 기반 초안 제시 → (b) [`questions-bank.md`](.claude/skills/draft-proposal/questions-bank.md) 후보에서 1~3개 핵심 질문 → (c) 답변 반영 → (d) 즉시 부분 저장.
+   - "팀 논의 안 됨/판단 불가/모름" 류 답변은 본문 직후 `<!-- ⚠️ 추가 논의 필요 -->` 블록을 인라인으로 누적하고 placeholder로 본문을 채운 뒤 **멈추지 않고** 다음 섹션 진행.
+3. 본문 11개 섹션이 끝나면 1p 요약(`01-summary.md`)을 본문 압축으로 자동 도출.
+4. 시각 자료 권장 섹션(시스템 구성도·AI 데이터 플로우·일정 등)에서는 **Mermaid 초안 + placeholder 제작 가이드**를 함께 본문에 삽입. 사용자가 "Mermaid로 충분"이면 가이드는 추가논의로 이동, "직접 그릴게"면 Mermaid 삭제 후 `[디자인 결정]` 누적. **최종 PDF 제출 전에 Mermaid 코드는 렌더링한 PNG로 교체**해야 함이 마무리에서 안내된다.
+
+### 산출물 위치
+
+```
+projects/outputs/<project>/{YYYY-MM-DD-HHmm}-proposal/
+├── 02-main.md       # 10p 본문 (각 섹션 + 인라인 추가논의)
+└── 01-summary.md    # 1p 요약 (말미에 종합 추가논의 한 블록)
+```
+
+### 외부 후기 반영 체크 (`projects/forms/`)
+
+`projects/forms/02-main-checklist.md` 의 "🌐 5단계: 외부 후기 반영 추가 체크" 에는 SWM 11·13·15·16기 합격 후기에서 자주 지적된 항목을 정리해두었다.
+
+- 사용자 인터뷰·검증 트레이스 (영상 또는 인용 카드)
+- 차별점 한 문장 진술 ("경쟁사를 죽이는 이유")
+- AI 활용의 필연성 ("AI 떼면 동일 서비스가 만들어지는가")
+- 멘토 보완점 코멘트 반영 흔적 (전부 칭찬은 형식적)
+- MVP 데모 가능 시점(보통 8~9월) 일정표 한 셀 명시
+- 발표 PPT 첫 페이지와 본 기획서 / 요약본 톤 일관성
+- 팀 3인 역할 중복 검사 (백/프/AI 분리)
+
+`draft-proposal` 스킬은 매 섹션 진입 시 이 체크리스트를 자가검증에 사용한다.
+
+### 예시
+
+```
+/draft-proposal debate-zip                              # 새 실행
+/draft-proposal debate-zip --resume 2026-05-14-1830     # 이어서 진행
+```
+
 ## 페르소나 (자동 처리)
 
 `target-user-persona`는 **하드코딩된 페르소나를 쓰지 않는다**. 대신:
@@ -137,15 +197,28 @@ mkdir -p projects/inputs/<project-name> projects/outputs/<project-name>
 │   │   ├── swm-reviewer.md
 │   │   └── peer-competitor.md
 │   └── skills/
-│       ├── analyze-meeting/             # 여러 파일로 분할된 스킬
-│       │   ├── SKILL.md                 # 진입점 (파일 지도)
+│       ├── analyze-meeting/             # 4페르소나 분석
+│       │   ├── SKILL.md                 # 진입점
 │       │   ├── invocation.md            # 호출 형태·모드
 │       │   ├── execution.md             # 실행 절차 6단계
 │       │   ├── output-format.md         # 리포트 포맷·마스킹
 │       │   └── constraints.md           # 에러·금지 사항
-│       └── synthesis-framework/
-│           └── SKILL.md                 # 정반합 + 취업 임팩트 규약
+│       ├── synthesis-framework/         # 정반합 + 취업 임팩트 규약
+│       │   └── SKILL.md
+│       └── draft-proposal/              # 17기 기획서 초안 작성기
+│           ├── SKILL.md                 # 진입점 (파일 지도)
+│           ├── invocation.md            # 호출 형태·재개 인자
+│           ├── execution.md             # 11개 섹션 인터리브 절차
+│           ├── output-format.md         # 인라인 추가논의 / Mermaid → PNG 안내
+│           ├── questions-bank.md        # 섹션별 질문 후보 (외부 후기 ⭐)
+│           ├── image-suggestions.md     # 섹션별 Mermaid 패턴 + placeholder
+│           └── constraints.md
 └── projects/
+    ├── forms/                           # 17기 양식·체크리스트 (비공식 작업본)
+    │   ├── 02-main.md                   # 본문 양식 (10p)
+    │   ├── 02-main-checklist.md         # 본문 체크 + 외부 후기 5단계
+    │   ├── 01-summary.md                # 요약 양식 (1p)
+    │   └── 01-summary-checklist.md      # 요약 체크
     ├── inputs/
     │   └── sample-project/
     │       └── sample-meeting.md        # 의도적 문제점 심어둠
@@ -165,6 +238,8 @@ mkdir -p projects/inputs/<project-name> projects/outputs/<project-name>
 
 ## 첫 테스트
 
+### `/analyze-meeting` 시도
+
 ```
 /analyze-meeting sample-project
 ```
@@ -180,6 +255,25 @@ mkdir -p projects/inputs/<project-name> projects/outputs/<project-name>
 - [ ] **백엔드/프론트 면접 카드 분리** (합 섹션에서)
 - [ ] **팀원별 취업 레버리지 점검 표** (합 섹션에서)
 - [ ] 개인정보 마스킹 (`김OO`, `박OO` 등)
+
+### `/draft-proposal` 시도
+
+실제 회의 자료가 누적된 프로젝트에서:
+
+```
+/draft-proposal debate-zip
+```
+
+다음을 확인:
+
+- [ ] `projects/inputs/debate-zip/` 의 자료를 시간순으로 읽었는가
+- [ ] 11개 섹션 묶음을 한 섹션씩 인터리브로 진행하는가 (한 번에 토해내지 않음)
+- [ ] 매 섹션 진입 시 외부 후기 5단계 체크가 자가검증에 사용되는가
+- [ ] 시스템 구성도 섹션에서 **Mermaid 초안 + placeholder**가 둘 다 본문에 들어왔는가
+- [ ] "팀 논의 안 됨"으로 답했을 때 인라인 `<!-- ⚠️ 추가 논의 필요 -->` 블록이 그 자리에 생기는가
+- [ ] 부분 저장이 동작해서 중단 후 `--resume <ts>` 로 이어지는가
+- [ ] 최종 산출물이 `projects/outputs/debate-zip/<ts>-proposal/` 에 `02-main.md` + `01-summary.md` 둘 다 생기는가
+- [ ] 마무리 메시지에서 "Mermaid 코드는 PNG로 교체" 안내가 나오는가
 
 ## 튜닝 팁
 

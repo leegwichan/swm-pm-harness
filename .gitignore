@@ -1,6 +1,11 @@
 .idea
 .vscode
 
+## AI
+.omc/
+settings.local.json
+
+## Input & Output
 projects/inputs/*
 !projects/inputs/.gitkeep
 !projects/inputs/sample-project/
@@ -9,3 +14,6 @@ projects/inputs/*
 projects/outputs/*
 !projects/outputs/.gitkeep
 !projects/outputs/debate-zip
+
+## Files
+*.pdf

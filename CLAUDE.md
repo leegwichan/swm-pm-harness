@@ -14,7 +14,10 @@
 
 ## 하네스 목적
 
-팀 회의 RAW DATA(회의록, 기획서 초안, 기술 스펙 등)를 입력받아 4명의 전문가 페르소나 서브에이전트가 각자 독립된 컨텍스트에서 분석하고, 메인 Claude가 **정(正)·반(反)·합(合) + 팀원별 취업 레버리지 점검** 구조로 종합 리포트를 생성한다.
+팀 회의 RAW DATA(회의록, 기획서 초안, 기술 스펙 등)를 입력으로 두 가지 산출물을 만든다.
+
+1. **분석 리포트** (`/analyze-meeting`): 4명의 전문가 페르소나 서브에이전트가 각자 독립된 컨텍스트에서 분석하고, 메인 Claude가 **정(正)·반(反)·합(合) + 팀원별 취업 레버리지 점검** 구조로 종합 리포트를 생성.
+2. **기획서 초안** (`/draft-proposal`): RAW + 양식·체크리스트(`projects/forms/`)를 기반으로 AI·SW마에스트로 17기 기획서(본문 10p `02-main.md` + 요약 1p `01-summary.md`) 초안을 11개 섹션 묶음 인터리브 질의응답으로 작성. 결정 못한 항목은 본문 인라인 `<!-- ⚠️ 추가 논의 필요 -->` 블록으로 누적되며, `--resume <ts>` 로 중간 재개 가능. 시스템 구성도·AI 데이터 플로우 등은 **Mermaid 초안 + placeholder 가이드**가 디폴트로 함께 들어간다.
 
 ## 서브에이전트 운영 원칙
 
@@ -78,11 +81,22 @@ projects/
 ├── .claude/
 │   ├── agents/                  # 서브에이전트 4종
 │   └── skills/
-│       ├── analyze-meeting/     # 오케스트레이터 (SKILL.md + 4개 참조 파일)
-│       └── synthesis-framework/ # 정반합 + 취업 임팩트 기준
+│       ├── analyze-meeting/     # 4페르소나 분석 오케스트레이터 (SKILL.md + 4파일)
+│       ├── synthesis-framework/ # 정반합 + 취업 임팩트 기준
+│       └── draft-proposal/      # 17기 기획서 초안 작성기 (SKILL.md + 6파일)
 └── projects/
+    ├── forms/                   # 17기 양식(PDF·md) + 체크리스트 (외부 후기 5단계 반영)
+    │   ├── 2026년도 AI·SW마에스트로 제17기 프로젝트 기획서 양식.pdf
+    │   ├── 02-main.md / 02-main-checklist.md      # 본문 양식 + 체크
+    │   └── 01-summary.md / 01-summary-checklist.md # 요약 양식 + 체크
     ├── inputs/
     │   └── <project-name>/      # 회의 RAW DATA
     └── outputs/
-        └── <project-name>/      # 생성된 리포트 (gitignored)
+        └── <project-name>/      # 생성된 리포트·기획서 초안 (gitignored)
 ```
+
+### `projects/forms/` 규약
+
+- 양식·체크리스트는 **공식 양식(PDF)을 기반으로 본인이 정리한 비공식 작업본**이다. SWM 운영진이 제공한 체크리스트가 아니다.
+- `02-main-checklist.md` 의 "🌐 5단계: 외부 후기 반영 추가 체크"는 SWM 11·13·15·16기 후기 글에서 자주 지적된 항목을 정리한 것이며, 출처는 `draft-proposal/questions-bank.md` 의 ⭐ 항목과 연결되어 있다.
+- `draft-proposal` 스킬은 매 섹션 진입 시 이 체크리스트를 자가검증에 사용한다. 양식 자체를 수정하는 경우 체크리스트와 questions-bank도 함께 갱신해야 한다.
