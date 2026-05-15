@@ -1,0 +1,24 @@
+{
+  "project": "debate-zip",
+  "ts": "2026-05-15-2153",
+  "mode": "partial",
+  "sections_in_scope_history": [
+    {"call": 1, "sections": [6, 7, 8, 9], "completed_at": "2026-05-15-2153"},
+    {"call": 2, "sections": [1, 2, 3, 4, 5, 10], "completed_at": "2026-05-15"},
+    {"call": 3, "sections": "summary", "completed_at": "2026-05-15"}
+  ],
+  "current_section": null,
+  "confirmed_sections": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  "remaining_sections": [11],
+  "dd_counter": 31,
+  "dd_resolved": [12, 15],
+  "s_counter": 5,
+  "skip_summary_derivation": false,
+  "summary_written": true,
+  "team": {
+    "BE": ["콜리", "커찬"],
+    "FE": ["에프이"]
+  },
+  "status": "summary_derived_with_section_11_pending",
+  "note": "본문 11번 미완 상태에서 1p 요약본 도출. 11번은 1p 요약본에 직접 영향 없는 양식 항목이라 가능. 최종 제출 전 11번 본문 채움 필요."
+}

@@ -5,7 +5,7 @@
 ## 1) 입력 로드
 
 1. [`invocation.md`](./invocation.md)의 검증을 통과시킨다.
-2. `projects/inputs/<project>/**/*.{md,html,txt}`를 `Glob`으로 모은다. 파일명 오름차순으로 정렬.
+2. `projects/inputs/<project>/**/*.{md,html,txt,csv}`를 `Glob`으로 모은다. 파일명 오름차순으로 정렬.
 3. 각 파일을 `Read`하여 다음 형식으로 하나의 합본 RAW DATA 문자열을 구성한다.
    ```
    === FILE: <상대경로> ===
