@@ -1,6 +1,6 @@
 ---
 name: draft-proposal
-description: 지정한 프로젝트의 RAW 회의·멘토링 자료를 바탕으로 AI·SW마에스트로 17기 기획서(02-main.md 10p + 01-summary.md 1p) 초안을 섹션 단위 인터리브 질의응답으로 작성한다. 결정 못한 사항은 그 자리에서 "추가 논의 필요" 인라인 블록으로 누적되며, `--resume` 으로 중간 재개 가능.
+description: 지정한 프로젝트의 RAW 회의·멘토링 자료를 바탕으로 AI·SW마에스트로 17기 기획서(02-main.md 10p + 01-summary.md 1p) 초안을 섹션 단위 인터리브 질의응답으로 작성한다. 결정 못한 사항은 그 자리에서 "추가 논의 필요" 인라인 블록으로 누적되며, `--resume` 으로 중간 재개·`--sections` 로 분담 작업 가능.
 ---
 
 # draft-proposal
@@ -28,10 +28,10 @@ description: 지정한 프로젝트의 RAW 회의·멘토링 자료를 바탕으
 
 ## 호출 로드맵 (요약)
 
-1. 사용자 입력 파싱 → [`invocation.md`](./invocation.md) 참조. `--resume {ts}` 가 있으면 기존 디렉터리 이어서 작업, 없으면 신규 디렉터리.
-2. 11개 섹션 인터리브 진행 → [`execution.md`](./execution.md).
+1. 사용자 입력 파싱 → [`invocation.md`](./invocation.md) 참조. `--resume {ts}` 가 있으면 기존 디렉터리 이어서 작업, 없으면 신규 디렉터리. **`--sections <spec>` 이 있으면 해당 섹션만 진행 (분담 모드).**
+2. 11개 섹션 인터리브 진행 → [`execution.md`](./execution.md). 분담 모드면 지정된 부분집합만.
 3. 각 섹션에서 (a) RAW 기반 초안 제시 → (b) [`questions-bank.md`](./questions-bank.md)의 후보에서 핵심 1~3개 질문 → (c) 사용자 답변 반영 / "팀 논의 안 됨"이면 추가 논의 블록 누적 → (d) 그 시점까지의 부분 결과를 디스크에 즉시 저장.
-4. 본문(02-main.md) 11개 섹션을 모두 마친 뒤 요약본(01-summary.md) 1p를 본문 압축으로 자동 도출 후 마지막에 사용자에게 종합 추가 논의 사항을 한 번 더 확인.
+4. 본문(02-main.md) 11개 섹션을 모두 마친 뒤 요약본(01-summary.md) 1p를 본문 압축으로 자동 도출 후 마지막에 사용자에게 종합 추가 논의 사항을 한 번 더 확인. **`--sections` 분담 모드에서는 요약본 도출을 건너뛴다** — 모든 섹션이 채워진 뒤 누군가 `--sections` 없이 `--resume` 으로 호출해 도출.
 5. 저장/마스킹 → [`output-format.md`](./output-format.md).
 
 ## 최상위 원칙 (다른 파일에서 반복되지 않음)

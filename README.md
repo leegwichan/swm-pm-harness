@@ -17,7 +17,7 @@ SW 마에스트로 연수 프로젝트의 **기획·기술 의사결정 분석**
 - **11개 섹션 묶음 인터리브 질의응답**: 한 섹션마다 RAW 기반 초안 → 1~3개 질문 → 답변 반영 → 부분 저장
 - "팀 논의 안 됨" 류 답변은 본문 직후 `<!-- ⚠️ 추가 논의 필요 -->` 블록으로 인라인 누적, 멈추지 않고 다음 섹션 진행
 - 시스템 구성도·AI 데이터 플로우 등 시각 자료 권장 섹션은 **Mermaid 초안 + placeholder 제작 가이드**가 디폴트로 함께 들어감
-- `projects/outputs/<project>/{YYYY-MM-DD-HHmm}-proposal/` 에 저장. `--resume <ts>` 로 중간 재개 가능
+- `projects/outputs/<project>/{YYYY-MM-DD-HHmm}-proposal/` 에 저장. `--resume <ts>` 로 중간 재개, `--sections <spec>` 로 **분담 모드** (특정 섹션만 진행) 가능
 
 **최우선 목표 (고정):**
 
@@ -130,19 +130,37 @@ mkdir -p projects/inputs/<project-name> projects/outputs/<project-name>
 ### 호출 형태
 
 ```
-/draft-proposal <project> [--resume <ts>]
+/draft-proposal <project> [--resume <ts>] [--sections <spec>]
 ```
 
 - `<project>` (필수): `projects/inputs/` 아래 디렉터리. 예: `debate-zip`.
 - `--resume <ts>` (선택): 이전 실행의 타임스탬프(`YYYY-MM-DD-HHmm`)로 이어서 진행.
+- `--sections <spec>` (선택): **분담 모드.** 본문 11개 섹션 중 일부만 진행. 형식은 범위(`6-9`), 콤마 리스트(`6,8,9`), 혼합(`6-7,9`), 단일(`9`). 값은 1~11.
+  - 지정 시 해당 섹션만 인터리브 진행하고, **요약본(`01-summary.md`) 자동 도출 단계는 건너뛴다**. 모든 섹션이 채워진 뒤 누군가 `--sections` 없이 `--resume <ts>` 로 호출하면 그때 요약본이 도출된다.
+
+### 11개 섹션 표 (분담 시 spec 매핑용)
+
+| # | 섹션 | 양식 헤더 |
+|---|---|---|
+| 1 | 문제인식 | `### 문제인식` |
+| 2 | 기획의도 | `### 기획의도` |
+| 3 | 프로젝트 소개 | `### 프로젝트 소개` |
+| 4 | 주요 기능 | `### 주요 기능` |
+| 5 | 시장분석 | `### 시장분석` |
+| 6 | 시스템 구성도 | `### 시스템 구성도` |
+| 7 | 개발환경 | `### 개발환경` |
+| 8 | AI 활용 전략 | `### AI 활용 전략` |
+| 9 | 프로젝트 수행 방안 (팀 구성 + 멘토 + 일정 + 수행 방법 + 예상문제) | `## 프로젝트 수행 방안` 묶음 |
+| 10 | 결과물 및 기대효과 (결과물 형태 + 활용방안 + 기대효과) | `## 결과물 및 기대효과` 묶음 |
+| 11 | 담당멘토 의견 | `## 담당멘토 의견` |
 
 ### 진행 방식
 
 1. `projects/inputs/<project>/` 의 RAW(`.md`/`.html`/`.txt`/이미지 메타)를 시간순(파일명 오름차순)으로 합쳐서 읽는다.
-2. `projects/forms/02-main.md` 양식 골격을 기반으로 **11개 섹션 묶음을 인터리브로** 진행:
+2. `projects/forms/02-main.md` 양식 골격을 기반으로 **11개 섹션 묶음을 인터리브로** 진행 (`--sections` 지정 시 해당 부분집합만):
    - 각 섹션마다 (a) RAW 기반 초안 제시 → (b) [`questions-bank.md`](.claude/skills/draft-proposal/questions-bank.md) 후보에서 1~3개 핵심 질문 → (c) 답변 반영 → (d) 즉시 부분 저장.
    - "팀 논의 안 됨/판단 불가/모름" 류 답변은 본문 직후 `<!-- ⚠️ 추가 논의 필요 -->` 블록을 인라인으로 누적하고 placeholder로 본문을 채운 뒤 **멈추지 않고** 다음 섹션 진행.
-3. 본문 11개 섹션이 끝나면 1p 요약(`01-summary.md`)을 본문 압축으로 자동 도출.
+3. 본문 11개 섹션이 끝나면 1p 요약(`01-summary.md`)을 본문 압축으로 자동 도출. (`--sections` 분담 모드에서는 이 단계를 건너뛴다.)
 4. 시각 자료 권장 섹션(시스템 구성도·AI 데이터 플로우·일정 등)에서는 **Mermaid 초안 + placeholder 제작 가이드**를 함께 본문에 삽입. 사용자가 "Mermaid로 충분"이면 가이드는 추가논의로 이동, "직접 그릴게"면 Mermaid 삭제 후 `[디자인 결정]` 누적. **최종 PDF 제출 전에 Mermaid 코드는 렌더링한 PNG로 교체**해야 함이 마무리에서 안내된다.
 
 ### 산출물 위치
@@ -170,9 +188,18 @@ projects/outputs/<project>/{YYYY-MM-DD-HHmm}-proposal/
 ### 예시
 
 ```
-/draft-proposal debate-zip                              # 새 실행
-/draft-proposal debate-zip --resume 2026-05-14-1830     # 이어서 진행
+/draft-proposal debate-zip                                           # 새 실행 (1~11번 전체 + 요약본)
+/draft-proposal debate-zip --resume 2026-05-14-1830                  # 이어서 진행 (전체)
+/draft-proposal debate-zip --sections 6-9                            # 분담: 6~9번만. 요약본 도출 안 함.
+/draft-proposal debate-zip --resume 2026-05-14-1830 --sections 9     # 재개 + 9번 묶음만
 ```
+
+### 팀 분담 워크플로 (예시)
+
+1. 팀원 A: `/draft-proposal debate-zip --sections 1-5` → 새 디렉터리 `<ts>-proposal/` 생성, 1~5번 채움.
+2. 팀원 B: `/draft-proposal debate-zip --resume <ts> --sections 6-9` → 같은 디렉터리에 6~9번 채움.
+3. 팀원 C: `/draft-proposal debate-zip --resume <ts> --sections 10-11` → 10·11번 채움.
+4. 누군가: `/draft-proposal debate-zip --resume <ts>` → 모든 섹션이 채워진 본문을 압축해 요약본(`01-summary.md`) 도출.
 
 ## 페르소나 (자동 처리)
 
@@ -272,6 +299,7 @@ projects/outputs/<project>/{YYYY-MM-DD-HHmm}-proposal/
 - [ ] 시스템 구성도 섹션에서 **Mermaid 초안 + placeholder**가 둘 다 본문에 들어왔는가
 - [ ] "팀 논의 안 됨"으로 답했을 때 인라인 `<!-- ⚠️ 추가 논의 필요 -->` 블록이 그 자리에 생기는가
 - [ ] 부분 저장이 동작해서 중단 후 `--resume <ts>` 로 이어지는가
+- [ ] `--sections 6-9` 같이 분담 모드로 호출 시 지정한 섹션만 진행하고 요약본 도출은 건너뛰는가
 - [ ] 최종 산출물이 `projects/outputs/debate-zip/<ts>-proposal/` 에 `02-main.md` + `01-summary.md` 둘 다 생기는가
 - [ ] 마무리 메시지에서 "Mermaid 코드는 PNG로 교체" 안내가 나오는가
 
